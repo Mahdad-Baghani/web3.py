@@ -5,12 +5,14 @@ python:
 dist: trusty
 env:
   matrix:
-    - TOX_ENV=py27-stdlib
-    - TOX_ENV=py34-stdlib
-    - TOX_ENV=py35-stdlib
-    - TOX_ENV=py27-gevent
-    - TOX_ENV=py34-gevent
-    - TOX_ENV=py35-gevent
+    - TOX_ENV=py27-core-stdlib
+    - TOX_ENV=py34-core-stdlib
+    - TOX_ENV=py35-core-stdlib
+    - TOX_ENV=py27-core-gevent
+    - TOX_ENV=py34-core-gevent
+    - TOX_ENV=py35-core-gevent
+    - TOX_ENV=py35-integration-ethtestrpc
+    - TOX_ENV=py35-integration-goethereum
     - TOX_ENV=flake8
 cache:
   pip: true
