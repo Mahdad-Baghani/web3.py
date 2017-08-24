@@ -12,7 +12,7 @@ env:
     - TOX_ENV=py34-core-gevent
     - TOX_ENV=py35-core-gevent
     - TOX_ENV=py35-integration-ethtestrpc
-    - TOX_ENV=py35-integration-goethereum
+    - TOX_ENV=py35-integration-goethereum GETH_VERSION=v1.6.0
     - TOX_ENV=flake8
 cache:
   pip: true

@@ -136,13 +136,32 @@ def get_open_port():
 
 
 @pytest.fixture(scope='session')
+def geth_binary():
+    from geth.install import (
+        get_executable_path,
+        install_geth,
+    )
+
+    if 'GETH_BINARY' in os.environ:
+        return os.environ['GETH_BINARY']
+    elif 'GETH_VERSION' in os.environ:
+        geth_version = os.environ['GETH_VERSION']
+        _geth_binary = get_executable_path(geth_version)
+        if not os.path.exists(_geth_binary):
+            install_geth(geth_version)
+        assert os.path.exists(_geth_binary)
+        return _geth_binary
+    else:
+        return 'geth'
+
+
+@pytest.fixture(scope='session')
 def geth_port():
     return get_open_port()
 
 
 @pytest.fixture(scope='session')
-def geth_process(datadir, genesis_file, keyfile, geth_ipc_path, geth_port):
-    geth_binary = os.environ.get('GETH_BINARY', 'geth')
+def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, geth_port):
     init_datadir_command = (
         geth_binary,
         'init',
