@@ -164,8 +164,8 @@ def geth_port():
 def geth_process(geth_binary, datadir, genesis_file, keyfile, geth_ipc_path, geth_port):
     init_datadir_command = (
         geth_binary,
-        'init',
         '--datadir', str(datadir),
+        'init',
         str(genesis_file),
     )
     subprocess.check_output(
