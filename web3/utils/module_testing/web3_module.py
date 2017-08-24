@@ -14,3 +14,10 @@ class Web3ModuleTest(object):
     def test_web3_sha3(self, web3, params, expected):
         actual = web3.sha3(*params)
         assert actual == expected
+
+    def test_web3_clientVersion(self, web3):
+        client_version = web3.version.node
+        self._check_web3_clientVersion(client_version)
+
+    def _check_web3_clientVersion(self, client_version):
+        raise NotImplementedError("Must be implemented by subclasses")

@@ -17,6 +17,7 @@ from web3 import Web3
 
 from web3.utils.module_testing import (
     Web3ModuleTest,
+    EthModuleTest,
 )
 
 
@@ -126,8 +127,21 @@ def kill_proc_gracefully(proc):
         wait_for_popen(proc, 2)
 
 
+def get_open_port():
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return str(port)
+
+
 @pytest.fixture(scope='session')
-def geth_process(datadir, genesis_file, keyfile, geth_ipc_path):
+def geth_port():
+    return get_open_port()
+
+
+@pytest.fixture(scope='session')
+def geth_process(datadir, genesis_file, keyfile, geth_ipc_path, geth_port):
     geth_binary = os.environ.get('GETH_BINARY', 'geth')
     init_datadir_command = (
         geth_binary,
@@ -135,9 +149,13 @@ def geth_process(datadir, genesis_file, keyfile, geth_ipc_path):
         '--datadir', str(datadir),
         str(genesis_file),
     )
-    subprocess.check_output(init_datadir_command)
+    subprocess.check_output(
+        init_datadir_command,
+        stdin=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=10,
+    )
 
-    # keystore = datadir.mkdir('keystore')
     run_geth_command = (
         geth_binary,
         '--datadir', str(datadir),
@@ -145,12 +163,13 @@ def geth_process(datadir, genesis_file, keyfile, geth_ipc_path):
         '--nodiscover',
         '--mine',
         '--minerthreads', '1',
+        '--port', geth_port,
     )
     proc = subprocess.Popen(
         run_geth_command,
-        #stdin=subprocess.PIPE,
-        #stdout=subprocess.PIPE,
-        #stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         bufsize=1,
     )
     yield proc
@@ -165,7 +184,7 @@ def wait_for_socket(ipc_path, timeout=30):
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(ipc_path)
             sock.settimeout(timeout)
-        except socket.error:
+        except (FileNotFoundError, socket.error):
             time.sleep(0.1)
         else:
             break
@@ -179,4 +198,9 @@ def web3(geth_process, geth_ipc_path):
 
 
 class TestGoEthereum(Web3ModuleTest):
+    def _check_web3_clientVersion(self, client_version):
+        assert client_version.startswith('Geth/')
+
+
+class TestGoEthereumEthModule(EthModuleTest):
     pass

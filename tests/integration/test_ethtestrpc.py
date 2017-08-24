@@ -4,6 +4,7 @@ from web3 import Web3
 
 from web3.utils.module_testing import (
     Web3ModuleTest,
+    EthModuleTest,
 )
 
 
@@ -13,5 +14,10 @@ def web3():
     return _web3
 
 
-class TestEthereumTester(Web3ModuleTest):
+class TestEthereumTesterWeb3Module(Web3ModuleTest):
+    def _check_web3_clientVersion(self, client_version):
+        assert client_version.startswith('TestRPC/')
+
+
+class TestEthereumTesterEthModule(EthModuleTest):
     pass
