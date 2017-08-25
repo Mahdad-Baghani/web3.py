@@ -213,11 +213,28 @@ def wait_for_socket(ipc_path, timeout=30):
             break
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def web3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     _web3 = Web3(Web3.IPCProvider(geth_ipc_path))
     return _web3
+
+
+@pytest.fixture(scope="session")
+def empty_block(web3):
+    current_block_number = web3.eth.blockNumber
+    web3.miner.start(1)
+    start_time = time.time()
+    while time.time() < start_time + 30:
+        if web3.eth.blockNumber > current_block_number:
+            web3.miner.stop()
+            break
+        else:
+            time.sleep(0.1)
+    else:
+        raise Timeout("No block mined during wait period")
+    block = web3.eth.getBlock(current_block_number + 1)
+    return block
 
 
 class TestGoEthereum(Web3ModuleTest):

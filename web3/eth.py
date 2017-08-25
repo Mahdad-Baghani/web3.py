@@ -135,12 +135,19 @@ class Eth(Module):
             [block_identifier],
         )
 
-    def getUncle(self, block_identifier):
+    def getUncleCount(self, block_identifier):
         """
         `eth_getUncleCountByBlockHash`
         `eth_getUncleCountByBlockNumber`
         """
-        raise NotImplementedError("TODO")
+        if is_predefined_block_number(block_identifier) or is_integer(block_identifier):
+            method = 'eth_getUncleCountByBlockNumber'
+        else:
+            method = 'eth_getUncleCountByBlockHash'
+        return self.web3.manager.request_blocking(
+            method,
+            [block_identifier],
+        )
 
     def getTransaction(self, transaction_hash):
         return self.web3.manager.request_blocking(

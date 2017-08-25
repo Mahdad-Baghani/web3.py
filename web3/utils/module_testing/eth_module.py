@@ -82,3 +82,27 @@ class EthModuleTest(object):
 
         assert is_integer(transaction_count)
         assert transaction_count >= 0
+
+    def test_eth_getBlockTransactionCountByHash(self, web3, empty_block):
+        transaction_count = web3.eth.getBlockTransactionCount(empty_block['hash'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count == 0
+
+    def test_eth_getBlockTransactionCountByNumber(self, web3, empty_block):
+        transaction_count = web3.eth.getBlockTransactionCount(empty_block['number'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count == 0
+
+    def test_eth_getUncleCountByBlockHash(self, web3, empty_block):
+        uncle_count = web3.eth.getUncleCount(empty_block['hash'])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0
+
+    def test_eth_getUncleCountByBlockNumber(self, web3, empty_block):
+        uncle_count = web3.eth.getUncleCount(empty_block['number'])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0

@@ -203,11 +203,11 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_getBlockTransactionCountByNumber': apply_formatter_at_index(
             block_number_formatter,
-            1,
+            0,
         ),
         'eth_getBlockTransactionCountByHash': apply_formatter_at_index(
             block_number_formatter,
-            1,
+            0,
         ),
         'eth_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'eth_getStorageAt': compose(
@@ -257,6 +257,8 @@ pythonic_middleware = construct_formatting_middleware(
             receipt_formatter,
             is_not_null,
         ),
+        'eth_getUncleCountByBlockHash': to_integer_if_hex,
+        'eth_getUncleCountByBlockNumber': to_integer_if_hex,
         'eth_hashrate': to_integer_if_hex,
         'eth_protocolVersion': compose(
             apply_formatter_if(str, is_integer),
