@@ -27,7 +27,10 @@ install:
   - travis_retry pip install pip setuptools --upgrade
   - travis_retry pip install tox
 before_script:
+  - if [ -n "$GETH_VERSION" ]; then travis_retry pip3 install py-geth==1.10.0; fi
+  - if [ -n "$GETH_VERSION" ]; then python3 -m geth.install $GETH_VERSION; fi
   - if [ -n "$GETH_VERSION" ]; then export GOROOT=/usr/lib/go-1.7; fi
+  - if [ -n "$GETH_VERSION" ]; then export GETH_BINARY="$GETH_BASE_INSTALL_PATH/geth-$GETH_VERSION/bin/geth"; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY version; fi
   - if [ -n "$GETH_VERSION" ]; then $GETH_BINARY makedag 0 $HOME/.ethash; fi
   - pip freeze
