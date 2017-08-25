@@ -148,3 +148,106 @@ class EthModuleTest(object):
         assert txn['value'] == 1
         assert txn['gas'] == 21000
         assert txn['gasPrice'] == txn_params['gas_price']
+
+    def test_eth_sendRawTransaction(self, web3, funded_account_for_raw_txn):
+        txn_hash = web3.eth.sendRawTransaction(
+            '0xf8648085174876e8008252089439eeed73fb1d3855e90cbd42f348b3d7b340aaa601801ba0ec1295f00936acd0c2cb90ab2cdaacb8bf5e11b3d9957833595aca9ceedb7aada05dfc8937baec0e26029057abd3a1ef8c505dca2cdc07ffacb046d090d2bea06a'
+        )
+        assert txn_hash == '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13'
+
+    def test_eth_estimateGas(self, web3):
+        coinbase = web3.eth.coinbase
+        gas_estimate = web3.eth.estimateGas({
+            'from': coinbase,
+            'to': coinbase,
+            'value': 1,
+        })
+        assert is_integer(gas_estimate)
+        assert gas_estimate > 0
+
+    def test_eth_getBlockByHash(self, web3, empty_block):
+        block = web3.eth.getBlock(empty_block['hash'])
+        assert block['hash'] == empty_block['hash']
+
+    def test_eth_getBlockByNumber_with_integer(self, web3, empty_block):
+        block = web3.eth.getBlock(empty_block['number'])
+        assert block['number'] == empty_block['number']
+
+    def test_eth_getBlockByNumber_latest(self, web3, empty_block):
+        current_block_number = web3.eth.blockNumber
+        block = web3.eth.getBlock('latest')
+        assert block['number'] == current_block_number
+
+    def test_eth_getBlockByNumber_pending(self, web3, empty_block):
+        current_block_number = web3.eth.blockNumber
+        block = web3.eth.getBlock('pending')
+        assert block['number'] == current_block_number + 1
+
+    def test_eth_getBlockByNumber_earliest(self, web3, empty_block):
+        genesis_block = web3.eth.getBlock(0)
+        block = web3.eth.getBlock('earliest')
+        assert block['number'] == 0
+        assert block['hash'] == genesis_block['hash']
+
+    def test_eth_getBlockByNumber_full_transactions(self, web3, block_with_txn):
+        block = web3.eth.getBlock(block_with_txn['number'], True)
+        transaction = block['transactions'][0]
+        assert transaction['hash'] == block_with_txn['transactions'][0]
+
+    def test_eth_getTransactionByHash(self, web3, mined_txn_hash):
+        transaction = web3.eth.getTransaction(mined_txn_hash)
+        assert transaction['hash'] == mined_txn_hash
+
+    def test_eth_getTransactionByBlockHashAndIndex(self, web3, block_with_txn, mined_txn_hash):
+        transaction = web3.eth.getTransactionFromBlock(block_with_txn['hash'], 0)
+        assert transaction['hash'] == mined_txn_hash
+
+    def test_eth_getTransactionByBlockNumberAndIndex(self, web3, block_with_txn, mined_txn_hash):
+        transaction = web3.eth.getTransactionFromBlock(block_with_txn['number'], 0)
+        assert transaction['hash'] == mined_txn_hash
+
+    def test_eth_getTransactionReceipt_mined(self, web3, block_with_txn, mined_txn_hash):
+        receipt = web3.eth.getTransactionReceipt(mined_txn_hash)
+        assert is_dict(receipt)
+        assert receipt['blockNumber'] == block_with_txn['number']
+        assert receipt['blockHash'] == block_with_txn['hash']
+        assert receipt['transactionIndex'] == 0
+
+    def test_eth_getTransactionReceipt_unmined(self, web3, unlocked_account):
+        txn_hash = web3.eth.sendTransaction({
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gas_price': web3.eth.gasPrice,
+        })
+        receipt = web3.eth.getTransactionReceipt(txn_hash)
+        assert receipt is None
+
+    def test_eth_getUncleByBlockHashAndIndex(self, web3):
+        # TODO: how do we make uncles....
+        pass
+
+    def test_eth_getUncleByBlockNumberAndIndex(self, web3):
+        # TODO: how do we make uncles....
+        pass
+
+    def test_eth_getCompilers(self, web3):
+        # TODO: do we want to test this?
+        pass
+
+    def test_eth_compileSolidity(self, web3):
+        # TODO: do we want to test this?
+        pass
+
+    def test_eth_compileLLL(self, web3):
+        # TODO: do we want to test this?
+        pass
+
+    def test_eth_compileSerpent(self, web3):
+        # TODO: do we want to test this?
+        pass
+
+    def test_eth_newFilter(self, web3):
+        # TODO: Start on filters
+        pass

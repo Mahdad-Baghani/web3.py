@@ -70,9 +70,27 @@ def block_with_txn(web3):
     return block
 
 
+@pytest.fixture(scope="session")
+def mined_txn_hash(block_with_txn):
+    return block_with_txn['transactions'][0]
+
+
 @pytest.fixture
 def unlocked_account(web3):
     return web3.eth.coinbase
+
+
+@pytest.fixture(scope="session")
+def funded_account_for_raw_txn(web3):
+    account = '0x39eeed73fb1d3855e90cbd42f348b3d7b340aaa6'
+    web3.eth.sendTransaction({
+        'from': web3.eth.coinbase,
+        'to': account,
+        'value': web3.toWei(10, 'ether'),
+        'gas': 21000,
+        'gas_price': 1,
+    })
+    return account
 
 
 class TestEthereumTesterWeb3Module(Web3ModuleTest):
@@ -80,17 +98,17 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
         assert client_version.startswith('TestRPC/')
 
 
-def not_implemented(method):
+def not_implemented(method, exc_type=AttributeError):
     @functools.wraps(method)
     def inner(*args, **kwargs):
-        with pytest.raises(AttributeError):
+        with pytest.raises(exc_type):
             method(*args, **kwargs)
     return inner
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
     #
-    # Eth-Testrpc doesn't implement a bunch of methods.
+    # Eth-Testrpc doesn't comply with RPC spec in many ways.
     #
     test_eth_hashrate = not_implemented(EthModuleTest.test_eth_hashrate)
 
@@ -117,6 +135,21 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     test_eth_sign = not_implemented(
         EthModuleTest.test_eth_sign,
+    )
+
+    test_eth_sendRawTransaction = not_implemented(
+        EthModuleTest.test_eth_sendRawTransaction, ValueError,
+    )
+
+    test_eth_getTransactionByBlockHashAndIndex = not_implemented(
+        EthModuleTest.test_eth_getTransactionByBlockHashAndIndex,
+    )
+    test_eth_getTransactionByBlockNumberAndIndex = not_implemented(
+        EthModuleTest.test_eth_getTransactionByBlockNumberAndIndex,
+    )
+
+    test_eth_getTransactionReceipt_unmined = not_implemented(
+        EthModuleTest.test_eth_getTransactionReceipt_unmined, AssertionError,
     )
 
 

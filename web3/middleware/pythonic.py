@@ -67,6 +67,18 @@ def is_create_address(value):
 is_not_create_address = complement(is_create_address)
 
 
+def is_array_of_strings(value):
+    if not is_list_like(value):
+        return False
+    return all((is_string(item) for item in value))
+
+
+def is_array_of_dicts(value):
+    if not is_list_like(value):
+        return False
+    return all((is_dict(item) for item in value))
+
+
 TRANSACTION_FORMATTERS = {
     'blockNumber': apply_formatter_if(to_integer_if_hex, is_not_null),
     'transactionIndex': apply_formatter_if(to_integer_if_hex, is_not_null),
@@ -120,9 +132,10 @@ BLOCK_FORMATTERS = {
     'number': apply_formatter_if(to_integer_if_hex, is_not_null),
     'difficulty': to_integer_if_hex,
     'totalDifficulty': to_integer_if_hex,
-    'transactions': apply_formatter_to_array(
-        apply_formatter_if(transaction_formatter, is_dict)
-    ),
+    'transactions': apply_one_of_formatters((
+        (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
+        (apply_formatter_to_array(to_ascii_if_bytes), is_array_of_strings),
+    )),
 }
 
 
@@ -223,6 +236,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
+        'eth_estimateGas': apply_formatter_at_index(transaction_params_formatter, 0),
         # Snapshot and Revert
         'evm_revert': apply_formatter_if(
             apply_formatter_at_index(to_integer_if_hex, 0),
