@@ -155,6 +155,10 @@ class EthModuleTest(object):
         )
         assert txn_hash == '0x1f80f8ab5f12a45be218f76404bda64d37270a6f4f86ededd0eb599f80548c13'
 
+    def test_eth_call(self, web3, math_contract):
+        # TODO: write this test.
+        pass
+
     def test_eth_estimateGas(self, web3):
         coinbase = web3.eth.coinbase
         gas_estimate = web3.eth.estimateGas({
