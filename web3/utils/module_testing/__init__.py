@@ -6,3 +6,9 @@ from .web3_module import (  # noqa: F401
 from .eth_module import (  # noqa: F401
     EthModuleTest,
 )
+from .net_module import (  # noqa: F401
+    NetModuleTest,
+)
+from .version_module import (  # noqa: F401
+    VersionModuleTest,
+)

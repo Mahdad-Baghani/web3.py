@@ -16,8 +16,10 @@ from eth_utils import (
 from web3 import Web3
 
 from web3.utils.module_testing import (
-    Web3ModuleTest,
     EthModuleTest,
+    NetModuleTest,
+    VersionModuleTest,
+    Web3ModuleTest,
 )
 
 
@@ -224,4 +226,12 @@ class TestGoEthereum(Web3ModuleTest):
 
 
 class TestGoEthereumEthModule(EthModuleTest):
+    pass
+
+
+class TestGoEthereumVersionModule(VersionModuleTest):
+    pass
+
+
+class TestGoEthereumNetModule(NetModuleTest):
     pass

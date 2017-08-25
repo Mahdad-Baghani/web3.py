@@ -17,3 +17,7 @@ class Net(Module):
 
     def getPeerCount(self, *args, **kwargs):
         raise NotImplementedError("Async calling has not been implemented")
+
+    @property
+    def version(self):
+        return self.web3.manager.request_blocking("net_version", [])

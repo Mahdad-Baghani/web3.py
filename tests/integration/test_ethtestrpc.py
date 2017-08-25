@@ -3,8 +3,10 @@ import pytest
 from web3 import Web3
 
 from web3.utils.module_testing import (
-    Web3ModuleTest,
     EthModuleTest,
+    NetModuleTest,
+    VersionModuleTest,
+    Web3ModuleTest,
 )
 
 
@@ -20,4 +22,12 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
+    pass
+
+
+class TestEthereumTesterVersionModule(VersionModuleTest):
+    pass
+
+
+class TestEthereumTesterNetModule(NetModuleTest):
     pass
