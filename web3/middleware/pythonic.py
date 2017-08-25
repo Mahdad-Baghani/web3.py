@@ -220,6 +220,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'eth_getTransactionByBlockHashAndIndex': apply_formatter_at_index(hex, 1),
         'eth_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
+        'eth_getUncleCountByBlockNumber': apply_formatter_at_index(block_number_formatter, 0),
         'eth_newFilter': apply_formatter_at_index(filter_params_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_params_formatter, 0),
         # Snapshot and Revert
