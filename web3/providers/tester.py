@@ -1,6 +1,17 @@
+from eth_utils import (
+    is_integer,
+)
+
+from web3.middleware import (
+    construct_formatting_middleware,
+)
+
 from web3.utils.compat import (
     make_server,
     spawn,
+)
+from web3.utils.formatters import (
+    apply_formatter_if,
 )
 
 from .base import BaseProvider  # noqa: E402
@@ -15,7 +26,16 @@ def is_testrpc_available():
         return False
 
 
+ethtestrpc_middleware = construct_formatting_middleware(
+    result_formatters={
+        'net_version': apply_formatter_if(str, is_integer),
+    },
+)
+
+
 class EthereumTesterProvider(BaseProvider):
+    middlewares = [ethtestrpc_middleware]
+
     def __init__(self,
                  *args,
                  **kwargs):
@@ -45,6 +65,8 @@ class EthereumTesterProvider(BaseProvider):
 
 
 class TestRPCProvider(HTTPProvider):
+    middlewares = [ethtestrpc_middleware]
+
     def __init__(self, host="127.0.0.1", port=8545, *args, **kwargs):
         if not is_testrpc_available():
             raise Exception("`TestRPCProvider` requires the `eth-testrpc` package to be installed")

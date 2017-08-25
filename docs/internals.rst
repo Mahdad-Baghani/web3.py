@@ -10,7 +10,8 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
 * **Middlewares** provide a hooks for monitoring and modifying requests and
-  responses to and from the provider.
+  responses to and from the provider.  These can be *global* operating on all
+  providers or specific to one provider.
 * **Managers** provide thread safety and primatives to allow for asyncronous usage of web3.
 
 Here are some common things you might want to do with these APIs.
@@ -44,17 +45,12 @@ Each web3 RPC call passes through these layers in the following manner.
                        |                ^
                        v                |
                  +-----------------------------+
-                 |     First  Middleware       |
+                 |     Global Middlewares      |
                  +-----------------------------+
                        |                ^
                        v                |
                  +-----------------------------+
-                 |             ...             |
-                 +-----------------------------+
-                       |                ^
-                       v                |
-                 +-----------------------------+
-                 |      Last  Middleware       |
+                 |    Provider Middlewares     |
                  +-----------------------------+
                        |                ^
                        v                |
@@ -129,6 +125,25 @@ request is issued to the next configured provider.  If no providers are able to
 handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
 raised.
 
+.. py:method:: BaseProvider.get_middlewares()
+
+    This function should return an iterable of middlewares that are specific to
+    this provider.  You should only override this method if you need to perform
+    special logic.  For a static iterable of middlewares, simply set them as
+    the ``self.middlewares`` property of the provider class
+
+
+.. py:method:: BaseProvider.add_middleware(middleware)
+
+    This method adds the given middleware to the beginning or outside of the
+    provider's middleware stack.
+
+
+.. py:method:: BaseProvider.clear_middlewares()
+
+    This method clears all provider middlewares.
+
+
 
 Middlewares
 -----------
@@ -196,13 +211,13 @@ The ``RequestManager`` object exposes two apis for managing middlewares.  Both
 of these methods are also exposed on the ``Web3`` object for convenience.
 
 
-.. method:: RequestManager.add_middleware(middleware)
+.. py:method:: RequestManager.add_middleware(middleware)
 
     This method adds the given middleware to the beginning or outside of the
     middleware stack.
 
 
-.. method:: RequestManager.clear_middlewares()
+.. py:method:: RequestManager.clear_middlewares()
 
     This method clears all middlewares.
 
