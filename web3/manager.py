@@ -48,7 +48,10 @@ class RequestManager(object):
     def _generate_request_functions(self):
         self._wrapped_provider_request_functions = {
             index: combine_middlewares(
-                middlewares=self._middlewares,
+                middlewares=tuple(itertools.chain(
+                    self._middlewares,
+                    provider.get_middlewares(),
+                )),
                 web3=self.web3,
                 provider_request_fn=provider.make_request,
             )
