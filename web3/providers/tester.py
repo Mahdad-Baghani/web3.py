@@ -28,6 +28,9 @@ def is_testrpc_available():
 
 ethtestrpc_middleware = construct_formatting_middleware(
     result_formatters={
+        # Eth
+        'eth_protocolVersion': apply_formatter_if(str, is_integer),
+        # Net
         'net_version': apply_formatter_if(str, is_integer),
     },
 )

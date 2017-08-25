@@ -235,6 +235,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_coinbase': to_normalized_address,
         'eth_estimateGas': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
+        'eth_getBalance': to_integer_if_hex,
         'eth_getBlockByHash': block_formatter,
         'eth_getBlockByNumber': block_formatter,
         'eth_getBlockTransactionCountByHash': to_integer_if_hex,
@@ -257,6 +258,10 @@ pythonic_middleware = construct_formatting_middleware(
             is_not_null,
         ),
         'eth_hashrate': to_integer_if_hex,
+        'eth_protocolVersion': compose(
+            apply_formatter_if(str, is_integer),
+            to_integer_if_hex,
+        ),
         'eth_sendRawTransaction': to_ascii_if_bytes,
         'eth_sendTransaction': to_ascii_if_bytes,
         'eth_syncing': apply_formatter_if(syncing_formatter, is_dict),
@@ -267,5 +272,7 @@ pythonic_middleware = construct_formatting_middleware(
         'txpool_inspect': transaction_pool_inspect_formatter,
         # Snapshot and Revert
         'evm_snapshot': hex_to_integer,
+        # Net
+        'net_peerCount': to_integer_if_hex,
     },
 )

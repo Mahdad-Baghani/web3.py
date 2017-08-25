@@ -22,7 +22,9 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
-    pass
+    def test_eth_hashrate(self, web3):
+        with pytest.raises(AttributeError):
+            super(TestEthereumTesterEthModule, self).test_eth_hashrate(web3)
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

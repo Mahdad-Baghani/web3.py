@@ -110,7 +110,7 @@ def wait_for_popen(proc, timeout):
     try:
         while time.time() < start + timeout:
             if proc.poll() is None:
-                time.sleep(0.1)
+                time.sleep(0.01)
             else:
                 break
     except Timeout:
@@ -208,7 +208,7 @@ def wait_for_socket(ipc_path, timeout=30):
             sock.connect(ipc_path)
             sock.settimeout(timeout)
         except (FileNotFoundError, socket.error):
-            time.sleep(0.1)
+            time.sleep(0.01)
         else:
             break
 
