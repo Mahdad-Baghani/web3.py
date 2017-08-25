@@ -25,8 +25,8 @@ MATH_BYTECODE = (
 )
 
 
-MATH_ABI = {
-    'return13': {
+MATH_ABI = [
+    {
         "constant": False,
         "inputs": [],
         "name": "return13",
@@ -35,7 +35,7 @@ MATH_ABI = {
         ],
         "type": "function",
     },
-    "counter": {
+    {
         "constant": True,
         "inputs": [],
         "name": "counter",
@@ -44,7 +44,7 @@ MATH_ABI = {
         ],
         "type": "function",
     },
-    "amt": {
+    {
         "constant": False,
         "inputs": [
             {"name": "amt", "type": "uint256"},
@@ -55,7 +55,7 @@ MATH_ABI = {
         ],
         "type": "function",
     },
-    'add': {
+    {
         "constant": False,
         "inputs": [
             {"name": "a", "type": "int256"},
@@ -67,7 +67,7 @@ MATH_ABI = {
         ],
         "type": "function",
     },
-    'increment': {
+    {
         "constant": False,
         "inputs": [],
         "name": "increment",
@@ -76,7 +76,7 @@ MATH_ABI = {
         ],
         "type": "function"
     },
-    'multiply7': {
+    {
         "constant": False,
         "inputs": [
             {"name": "a", "type": "int256"},
@@ -87,7 +87,7 @@ MATH_ABI = {
         ],
         "type": "function",
     },
-    'Increased': {
+    {
         "anonymous": False,
         "inputs": [
             {"indexed": False, "name": "value", "type": "uint256"},
@@ -95,7 +95,7 @@ MATH_ABI = {
         "name": "Increased",
         "type": "event",
     },
-}
+]
 
 
 def _deploy_math(eth_tester):

@@ -11,6 +11,8 @@ import pytest
 from eth_utils import (
     to_wei,
     remove_0x_prefix,
+    is_dict,
+    is_address,
 )
 
 from web3 import Web3
@@ -20,6 +22,10 @@ from web3.utils.module_testing import (
     NetModuleTest,
     VersionModuleTest,
     Web3ModuleTest,
+)
+from web3.utils.module_testing.math_contract import (
+    MATH_BYTECODE,
+    MATH_ABI,
 )
 
 
@@ -221,6 +227,48 @@ def web3(geth_process, geth_ipc_path):
 
 
 @pytest.fixture(scope="session")
+def math_contract_factory(web3):
+    contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
+    return contract_factory
+
+
+@pytest.fixture(scope="session")
+def math_contract_deploy_txn_hash(web3, math_contract_factory):
+    coinbase = web3.eth.coinbase
+    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
+    deploy_txn_hash = math_contract_factory.deploy({'from': coinbase})
+    web3.personal.lockAccount(coinbase)
+    return deploy_txn_hash
+
+
+@pytest.fixture(scope="session")
+def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
+    start_time = time.time()
+    web3.miner.start(1)
+    while time.time() < start_time + 20:
+        deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
+        if deploy_receipt is not None:
+            web3.miner.stop()
+            break
+        else:
+            time.sleep(0.1)
+    else:
+        raise Timeout("Math contract deploy transaction not mined during wait period")
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
+    assert is_address(contract_address)
+    return math_contract_factory(contract_address)
+
+
+@pytest.fixture
+def unlocked_account(web3):
+    coinbase = web3.eth.coinbase
+    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
+    yield coinbase
+    web3.personal.lockAccount(coinbase)
+
+
+@pytest.fixture(scope="session")
 def empty_block(web3):
     current_block_number = web3.eth.blockNumber
     web3.miner.start(1)
@@ -234,6 +282,33 @@ def empty_block(web3):
     else:
         raise Timeout("No block mined during wait period")
     block = web3.eth.getBlock(current_block_number + 1)
+    return block
+
+
+@pytest.fixture(scope="session")
+def block_with_txn(web3):
+    coinbase = web3.eth.coinbase
+    web3.personal.unlockAccount(coinbase, KEYFILE_PW)
+    web3.miner.start(1)
+    txn_hash = web3.eth.sendTransaction({
+        'from': coinbase,
+        'to': coinbase,
+        'value': 1,
+        'gas': 21000,
+        'gas_price': web3.eth.gasPrice,
+    })
+    start_time = time.time()
+    while time.time() < start_time + 20:
+        txn_receipt = web3.eth.getTransactionReceipt(txn_hash)
+        if txn_receipt is not None:
+            web3.miner.stop()
+            break
+        else:
+            time.sleep(0.1)
+    else:
+        raise Timeout("Math contract deploy transaction not mined during wait period")
+    web3.personal.lockAccount(coinbase)
+    block = web3.eth.getBlock(txn_receipt['blockNumber'])
     return block
 
 

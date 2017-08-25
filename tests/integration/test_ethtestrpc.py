@@ -1,3 +1,5 @@
+import functools
+
 import pytest
 
 from eth_utils import (
@@ -27,7 +29,7 @@ def web3():
 
 @pytest.fixture(scope="session")
 def math_contract_factory(web3):
-    contract_factory = web3.eth.contract(abi=MATH_ABI, code=MATH_BYTECODE)
+    contract_factory = web3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
     return contract_factory
 
 
@@ -39,9 +41,9 @@ def math_contract_deploy_txn_hash(math_contract_factory):
 
 @pytest.fixture(scope="session")
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
-    deploy_txn = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
-    assert is_dict(deploy_txn)
-    contract_address = deploy_txn['contractAddress']
+    deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt['contractAddress']
     assert is_address(contract_address)
     return math_contract_factory(contract_address)
 
@@ -54,46 +56,68 @@ def empty_block(web3):
     return block
 
 
+@pytest.fixture(scope="session")
+def block_with_txn(web3):
+    txn_hash = web3.eth.sendTransaction({
+        'from': web3.eth.coinbase,
+        'to': web3.eth.coinbase,
+        'value': 1,
+        'gas': 21000,
+        'gas_price': 1,
+    })
+    txn = web3.eth.getTransaction(txn_hash)
+    block = web3.eth.getBlock(txn['blockNumber'])
+    return block
+
+
+@pytest.fixture
+def unlocked_account(web3):
+    return web3.eth.coinbase
+
+
 class TestEthereumTesterWeb3Module(Web3ModuleTest):
     def _check_web3_clientVersion(self, client_version):
         assert client_version.startswith('TestRPC/')
+
+
+def not_implemented(method):
+    @functools.wraps(method)
+    def inner(*args, **kwargs):
+        with pytest.raises(AttributeError):
+            method(*args, **kwargs)
+    return inner
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
     #
     # Eth-Testrpc doesn't implement a bunch of methods.
     #
-    def test_eth_hashrate(self, web3):
-        with pytest.raises(AttributeError):
-            super(TestEthereumTesterEthModule, self).test_eth_hashrate(web3)
+    test_eth_hashrate = not_implemented(EthModuleTest.test_eth_hashrate)
 
-    def test_eth_getBlockTransactionCountByHash(self, web3, empty_block):
-        with pytest.raises(AttributeError):
-            super(TestEthereumTesterEthModule, self).test_eth_getBlockTransactionCountByHash(
-                web3,
-                empty_block,
-            )
+    test_eth_getBlockTransactionCountByHash_empty_block = not_implemented(
+        EthModuleTest.test_eth_getBlockTransactionCountByHash_empty_block,
+    )
+    test_eth_getBlockTransactionCountByNumber_empty_block = not_implemented(
+        EthModuleTest.test_eth_getBlockTransactionCountByNumber_empty_block,
+    )
 
-    def test_eth_getBlockTransactionCountByNumber(self, web3, empty_block):
-        with pytest.raises(AttributeError):
-            super(TestEthereumTesterEthModule, self).test_eth_getBlockTransactionCountByNumber(
-                web3,
-                empty_block,
-            )
+    test_eth_getBlockTransactionCountByHash_block_with_txn = not_implemented(
+        EthModuleTest.test_eth_getBlockTransactionCountByHash_block_with_txn,
+    )
+    test_eth_getBlockTransactionCountByNumber_block_with_txn = not_implemented(
+        EthModuleTest.test_eth_getBlockTransactionCountByNumber_block_with_txn,
+    )
 
-    def test_eth_getUncleCountByBlockHash(self, web3, empty_block):
-        with pytest.raises(AttributeError):
-            super(TestEthereumTesterEthModule, self).test_eth_getUncleCountByBlockHash(
-                web3,
-                empty_block,
-            )
+    test_eth_getUncleCountByBlockHash = not_implemented(
+        EthModuleTest.test_eth_getUncleCountByBlockHash,
+    )
+    test_eth_getUncleCountByBlockNumber = not_implemented(
+        EthModuleTest.test_eth_getUncleCountByBlockNumber,
+    )
 
-    def test_eth_getUncleCountByBlockNumber(self, web3, empty_block):
-        with pytest.raises(AttributeError):
-            super(TestEthereumTesterEthModule, self).test_eth_getUncleCountByBlockNumber(
-                web3,
-                empty_block,
-            )
+    test_eth_sign = not_implemented(
+        EthModuleTest.test_eth_sign,
+    )
 
 
 class TestEthereumTesterVersionModule(VersionModuleTest):

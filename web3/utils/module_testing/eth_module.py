@@ -1,10 +1,13 @@
 from eth_utils import (
     is_address,
     is_text,
+    is_string,
     is_boolean,
     is_dict,
     is_integer,
     is_list_like,
+    is_same_address,
+    remove_0x_prefix,
 )
 
 
@@ -83,17 +86,29 @@ class EthModuleTest(object):
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
-    def test_eth_getBlockTransactionCountByHash(self, web3, empty_block):
+    def test_eth_getBlockTransactionCountByHash_empty_block(self, web3, empty_block):
         transaction_count = web3.eth.getBlockTransactionCount(empty_block['hash'])
 
         assert is_integer(transaction_count)
         assert transaction_count == 0
 
-    def test_eth_getBlockTransactionCountByNumber(self, web3, empty_block):
+    def test_eth_getBlockTransactionCountByNumber_empty_block(self, web3, empty_block):
         transaction_count = web3.eth.getBlockTransactionCount(empty_block['number'])
 
         assert is_integer(transaction_count)
         assert transaction_count == 0
+
+    def test_eth_getBlockTransactionCountByHash_block_with_txn(self, web3, block_with_txn):
+        transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['hash'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
+
+    def test_eth_getBlockTransactionCountByNumber_block_with_txn(self, web3, block_with_txn):
+        transaction_count = web3.eth.getBlockTransactionCount(block_with_txn['number'])
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
 
     def test_eth_getUncleCountByBlockHash(self, web3, empty_block):
         uncle_count = web3.eth.getUncleCount(empty_block['hash'])
@@ -106,3 +121,30 @@ class EthModuleTest(object):
 
         assert is_integer(uncle_count)
         assert uncle_count == 0
+
+    def test_eth_getCode(self, web3, math_contract):
+        code = web3.eth.getCode(math_contract.address)
+        assert is_string(code)
+        assert len(code) > 2
+
+    def test_eth_sign(self, web3, unlocked_account):
+        signature = web3.eth.sign(unlocked_account, 'message-to-be-signed')
+        assert is_string(signature)
+        assert len(remove_0x_prefix(signature)) == 130
+
+    def test_eth_sendTransaction(self, web3, unlocked_account):
+        txn_params = {
+            'from': unlocked_account,
+            'to': unlocked_account,
+            'value': 1,
+            'gas': 21000,
+            'gas_price': web3.eth.gasPrice,
+        }
+        txn_hash = web3.eth.sendTransaction(txn_params)
+        txn = web3.eth.getTransaction(txn_hash)
+
+        assert is_same_address(txn['from'], txn_params['from'])
+        assert is_same_address(txn['to'], txn_params['to'])
+        assert txn['value'] == 1
+        assert txn['gas'] == 21000
+        assert txn['gasPrice'] == txn_params['gas_price']
