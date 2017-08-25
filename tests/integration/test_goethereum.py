@@ -50,7 +50,9 @@ def keystore(datadir):
 
 @pytest.fixture(scope='session')
 def keyfile(keystore):
-    _keyfile = keystore.join('UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd')
+    _keyfile = keystore.join(
+        'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd',
+    )
     _keyfile.write(KEYFILE_DATA)
     return _keyfile
 
