@@ -245,7 +245,7 @@ def math_contract_deploy_txn_hash(web3, math_contract_factory):
 def math_contract(web3, math_contract_factory, math_contract_deploy_txn_hash):
     start_time = time.time()
     web3.miner.start(1)
-    while time.time() < start_time + 20:
+    while time.time() < start_time + 60:
         deploy_receipt = web3.eth.getTransactionReceipt(math_contract_deploy_txn_hash)
         if deploy_receipt is not None:
             web3.miner.stop()
@@ -283,7 +283,7 @@ def funded_account_for_raw_txn(web3):
     web3.personal.lockAccount(coinbase)
     web3.miner.start(1)
     start_time = time.time()
-    while time.time() < start_time + 30:
+    while time.time() < start_time + 60:
         fund_receipt = web3.eth.getTransactionReceipt(fund_txn_hash)
         if fund_receipt is not None:
             web3.miner.stop()
@@ -300,7 +300,7 @@ def empty_block(web3):
     current_block_number = web3.eth.blockNumber
     web3.miner.start(1)
     start_time = time.time()
-    while time.time() < start_time + 30:
+    while time.time() < start_time + 60:
         if web3.eth.blockNumber > current_block_number:
             web3.miner.stop()
             break
