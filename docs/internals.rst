@@ -125,12 +125,9 @@ request is issued to the next configured provider.  If no providers are able to
 handle the request then a ``web3.exceptions.UnhandledRequest`` error will be
 raised.
 
-.. py:method:: BaseProvider.get_middlewares()
+.. py:property:: BaseProvider.middlewares
 
-    This function should return an iterable of middlewares that are specific to
-    this provider.  You should only override this method if you need to perform
-    special logic.  For a static iterable of middlewares, simply set them as
-    the ``self.middlewares`` property of the provider class
+    This should be an iterable of middlewares.
 
 
 .. py:method:: BaseProvider.add_middleware(middleware)

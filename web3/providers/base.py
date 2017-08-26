@@ -11,9 +11,6 @@ from eth_utils import (
 
 
 class BaseProvider(object):
-    def get_middlewares(self):
-        return self.middlewares
-
     _middlewares = None
 
     @property
